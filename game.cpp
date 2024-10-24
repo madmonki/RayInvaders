@@ -3,7 +3,7 @@
 
 Game::Game()
 {
-
+    obstacles = CreateObstacles();
 }
 
 Game::~Game()
@@ -24,9 +24,11 @@ void Game::Draw()
 {
     spaceship.Draw();
 
-    for(Laser& laser: spaceship.lasers) {
+    for(Laser& laser: spaceship.lasers)
         laser.Draw();
-    }
+
+    for(Obstacle& obstacle: obstacles)
+        obstacle.Draw();
 }
 
 void Game::HandleMovement()
@@ -53,5 +55,19 @@ void Game::DeleteInactiveLasers()
         else
             ++it;
     }
+}
+
+ 
+std::vector<Obstacle> Game::CreateObstacles()  
+{
+    int obstacleWidth = Obstacle::grid[0].size() * 3;
+    float gap = (GetScreenWidth() - (4 * obstacleWidth)) / 5.f;
+
+    for(int i = 0; i < 4; i++){
+        float offsetX = (i + 1) * gap + i * obstacleWidth;
+        obstacles.push_back(Obstacle({offsetX, 
+                                      float(GetScreenHeight() - 100.f)}));
+    }
+	return obstacles;
 }
 
