@@ -4,20 +4,42 @@
 Game::Game()
 {
     obstacles = CreateObstacles();
+    aliens = CreateAliens();
+    aliens_direction = 1;
+    last_time_alien_fired = 0.f;
+    mothership_spawn_interval = GetRandomValue(10, 20);
+    time_last_spawn = 0.f;
 }
 
 Game::~Game()
 {
-
+    Alien::UnloadImages();
 }
 
 void Game::Update()
 {
+    float current_time = GetTime();
+    if (current_time - time_last_spawn > mothership_spawn_interval) {
+        mothership.Spawn();
+        time_last_spawn = GetTime();
+        mothership_spawn_interval = GetRandomValue(10, 20);
+    }
+
+
     for(Laser& laser: spaceship.lasers) {
         laser.Update();
     }
+    
+    MoveAliens();
+
+    AlienShootLaser();
+
+    for (Laser& laser: alien_lasers)
+         laser.Update();
 
     DeleteInactiveLasers();
+
+    mothership.Update();
 }
 
 void Game::Draw()
@@ -29,6 +51,14 @@ void Game::Draw()
 
     for(Obstacle& obstacle: obstacles)
         obstacle.Draw();
+
+    for(Alien& alien: aliens)
+        alien.Draw();
+
+    for (Laser& laser: alien_lasers)
+        laser.Draw();
+
+    mothership.Draw();
 }
 
 void Game::HandleMovement()
@@ -55,6 +85,13 @@ void Game::DeleteInactiveLasers()
         else
             ++it;
     }
+
+    for(auto it = alien_lasers.begin(); it != alien_lasers.end();) {
+        if(!it -> active)
+            it = alien_lasers.erase(it);
+        else
+            ++it;
+    }
 }
 
  
@@ -71,3 +108,61 @@ std::vector<Obstacle> Game::CreateObstacles()
 	return obstacles;
 }
 
+std::vector<Alien> Game::CreateAliens()
+{
+    std::vector<Alien> aliens;
+    for(int row = 0; row < 5; row++) {
+        for(int column = 0; column < 11; column++) {
+            
+            int alien_type;
+            if (row == 0)
+                alien_type = 3;
+            else if (row == 1 || row == 2) 
+                alien_type = 2;
+            else
+                alien_type = 1; 
+
+            float x = 75 + column * 55;
+            float y = 110 + row * 55;
+            aliens.push_back(Alien(alien_type, {x, y}));
+        }
+    }
+
+    return aliens;
+}
+ 
+void Game::MoveAliens()  
+{
+    for (Alien& alien: aliens) {
+        if (alien.position.x + alien.alien_images[alien.type - 1].width >= GetScreenWidth()) {
+            aliens_direction = -1;
+            MoveDownAliens(4);
+        }
+        if (alien.position.x <= 0) {
+            aliens_direction = 1;
+            MoveDownAliens(4);
+        }
+
+    alien.Update(aliens_direction);
+    }
+}
+
+ 
+void Game::MoveDownAliens(int distance)  
+{
+   for (Alien& alien: aliens)
+        alien.position.y += distance;
+}
+ 
+void Game::AlienShootLaser()  
+{
+    float current_time = GetTime();
+    if (current_time - last_time_alien_fired >= alien_laser_interval && !aliens.empty()) {
+        int random_index = GetRandomValue(0, aliens.size() - 1);
+        Alien& alien = aliens[random_index];
+        alien_lasers.push_back(Laser({alien.position.x + alien.alien_images[alien.type - 1].width / 2.f, 
+                                      alien.position.y + alien.alien_images[alien.type - 1].width}, 
+                                      6.f));
+        last_time_alien_fired = GetTime();
+    }
+}

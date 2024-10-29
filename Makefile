@@ -1,5 +1,5 @@
-RayInvaders: main.o game.o spaceship.o laser.o obstacle.o block.o
-	clang++ -o RayInvaders main.o game.o spaceship.o laser.o obstacle.o block.o $(shell pkg-config --libs raylib wayland-client wayland-egl)
+RayInvaders: main.o game.o spaceship.o laser.o obstacle.o block.o alien.o mothership.o
+	clang++ -o RayInvaders main.o game.o spaceship.o laser.o obstacle.o block.o alien.o mothership.o $(shell pkg-config --libs raylib wayland-client wayland-egl)
 
 main.o: main.cpp
 	clang++ -c main.cpp $(shell pkg-config --cflags raylib wayland-client wayland-egl)
@@ -19,5 +19,11 @@ obstacle.o: obstacle.cpp
 block.o: block.cpp
 	clang++ -c block.cpp $(shell pkg-config --cflags raylib wayland-client wayland-egl)
 
+alien.o: alien.cpp
+	clang++ -c alien.cpp $(shell pkg-config --cflags raylib wayland-client wayland-egl)
+
+mothership.o: mothership.cpp
+	clang++ -c mothership.cpp $(shell pkg-config --cflags raylib wayland-client wayland-egl)
+
 clean:
-	rm -f RayInvaders main.o spaceship.o game.o laser.o obstacle.o block.o
+	rm -f RayInvaders main.o spaceship.o game.o laser.o obstacle.o block.o alien.o mothership.o
