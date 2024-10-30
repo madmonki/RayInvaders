@@ -27,3 +27,8 @@ void Laser::SetSpeed(float speed)
 {
     this -> speed = speed;
 }
+ 
+Rectangle Laser::GetRect() 
+{
+	return {position.x, position.y, 4.f, 15.f};
+}

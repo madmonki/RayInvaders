@@ -9,6 +9,7 @@ public:
     void Update();
     void Draw();
     void Spawn();
+    Rectangle GetRect();
     bool alive;
 private:
     Vector2 position;

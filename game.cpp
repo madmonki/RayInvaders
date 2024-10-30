@@ -40,6 +40,8 @@ void Game::Update()
     DeleteInactiveLasers();
 
     mothership.Update();
+
+    CheckForCollisions();
 }
 
 void Game::Draw()
@@ -166,3 +168,72 @@ void Game::AlienShootLaser()
         last_time_alien_fired = GetTime();
     }
 }
+ 
+void Game::CheckForCollisions()  
+{
+    //Spaceship lasers
+
+    for (Laser& laser: spaceship.lasers) {
+        auto it = aliens.begin();
+        while (it != aliens.end()) {
+            if (CheckCollisionRecs(it -> GetRect(), laser.GetRect())) {
+                it = aliens.erase(it);
+                laser.active = false;
+            }
+            else
+                ++it;
+        }
+
+        for (Obstacle& obstacle: obstacles) {
+            auto it = obstacle.blocks.begin();
+            while (it != obstacle.blocks.end())
+                if (CheckCollisionRecs(it -> GetRect(), laser.GetRect())) {
+                    it = obstacle.blocks.erase(it);
+                    laser.active = false;
+                }
+                else
+                    ++it;
+        }
+
+        if (CheckCollisionRecs(mothership.GetRect(), laser.GetRect())) {
+            mothership.alive = false;
+            laser.active = false;
+        }
+    }
+    
+    // Alien lasers
+
+    for (Laser& laser: alien_lasers) {
+        if (CheckCollisionRecs(laser.GetRect(), spaceship.GetRect()))
+            laser.active = false;
+
+        for (Obstacle& obstacle: obstacles) {
+            auto it = obstacle.blocks.begin();
+            while (it != obstacle.blocks.end())
+                if (CheckCollisionRecs(it -> GetRect(), laser.GetRect())) {
+                    it = obstacle.blocks.erase(it);
+                    laser.active = false;
+                }
+                else
+                    ++it;
+        }
+    }
+
+    // Alien collision with obstacle
+
+    for (Alien& alien: aliens) {
+        for (Obstacle& obstacle: obstacles) {
+            auto it = obstacle.blocks.begin();
+            while (it != obstacle.blocks.end())
+                if (CheckCollisionRecs(it -> GetRect(), alien.GetRect()))
+                    it = obstacle.blocks.erase(it);
+                else
+                    ++it;
+        }
+
+        if (CheckCollisionRecs(alien.GetRect(), spaceship.GetRect()))
+            ;
+    }
+
+}
+

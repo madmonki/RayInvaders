@@ -43,3 +43,12 @@ void MotherShip::Draw()
     if (alive)
         DrawTextureV(image, position, WHITE);
 }
+ 
+Rectangle MotherShip::GetRect()
+{
+    if (alive)
+        return {position.x, position.y, float(image.width), 
+                                        float(image.height) };
+    else 
+        return {position.x, position.y, 0, 0};
+}
