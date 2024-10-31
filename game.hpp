@@ -13,6 +13,9 @@ public:
     void Update();
     void HandleMovement();
     void HandleFire();
+    bool run;
+    int lives;
+    int score;
 private:
     void DeleteInactiveLasers();
     std::vector<Obstacle> CreateObstacles();
@@ -21,6 +24,9 @@ private:
     void MoveDownAliens(int distance);
     void AlienShootLaser();
     void CheckForCollisions();
+    void GameOver();
+    void Reset();
+    void InitGame();
     Spaceship spaceship;
     MotherShip mothership;
     std::vector<Obstacle> obstacles;

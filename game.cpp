@@ -3,12 +3,7 @@
 
 Game::Game()
 {
-    obstacles = CreateObstacles();
-    aliens = CreateAliens();
-    aliens_direction = 1;
-    last_time_alien_fired = 0.f;
-    mothership_spawn_interval = GetRandomValue(10, 20);
-    time_last_spawn = 0.f;
+    InitGame();
 }
 
 Game::~Game()
@@ -18,30 +13,37 @@ Game::~Game()
 
 void Game::Update()
 {
-    float current_time = GetTime();
-    if (current_time - time_last_spawn > mothership_spawn_interval) {
-        mothership.Spawn();
-        time_last_spawn = GetTime();
-        mothership_spawn_interval = GetRandomValue(10, 20);
-    }
+    if (run) {
+        float current_time = GetTime();
+        if (current_time - time_last_spawn > mothership_spawn_interval) {
+            mothership.Spawn();
+            time_last_spawn = GetTime();
+            mothership_spawn_interval = GetRandomValue(10, 20);
+        }
 
 
-    for(Laser& laser: spaceship.lasers) {
-        laser.Update();
-    }
-    
-    MoveAliens();
+        for(Laser& laser: spaceship.lasers) {
+            laser.Update();
+        }
+        
+        MoveAliens();
 
-    AlienShootLaser();
+        AlienShootLaser();
 
-    for (Laser& laser: alien_lasers)
-         laser.Update();
+        for (Laser& laser: alien_lasers)
+             laser.Update();
 
-    DeleteInactiveLasers();
+        DeleteInactiveLasers();
 
-    mothership.Update();
+        mothership.Update();
 
-    CheckForCollisions();
+        CheckForCollisions();
+    }    
+    else 
+        if (IsKeyDown(KEY_ENTER)) {
+            Reset();
+            InitGame();
+        }
 }
 
 void Game::Draw()
@@ -65,17 +67,19 @@ void Game::Draw()
 
 void Game::HandleMovement()
 {
-    if (IsKeyDown(KEY_LEFT) && IsKeyDown(KEY_RIGHT))
-        return; 
-    else if(IsKeyDown(KEY_LEFT))
-        spaceship.MoveLeft();
-    else if(IsKeyDown(KEY_RIGHT))
-        spaceship.MoveRight();
+    if (run) {
+        if (IsKeyDown(KEY_LEFT) && IsKeyDown(KEY_RIGHT))
+            return; 
+        else if(IsKeyDown(KEY_LEFT))
+            spaceship.MoveLeft();
+        else if(IsKeyDown(KEY_RIGHT))
+            spaceship.MoveRight();
+    }
 }
 
 void Game::HandleFire()
 {
-    if(IsKeyDown(KEY_SPACE))
+    if(IsKeyDown(KEY_SPACE) && run)
         spaceship.FireLaser();
 }
 
@@ -105,7 +109,7 @@ std::vector<Obstacle> Game::CreateObstacles()
     for(int i = 0; i < 4; i++){
         float offsetX = (i + 1) * gap + i * obstacleWidth;
         obstacles.push_back(Obstacle({offsetX, 
-                                      float(GetScreenHeight() - 100.f)}));
+                                      float(GetScreenHeight() - 200.f)}));
     }
 	return obstacles;
 }
@@ -136,11 +140,11 @@ std::vector<Alien> Game::CreateAliens()
 void Game::MoveAliens()  
 {
     for (Alien& alien: aliens) {
-        if (alien.position.x + alien.alien_images[alien.type - 1].width >= GetScreenWidth()) {
+        if (alien.position.x + alien.alien_images[alien.type - 1].width >= GetScreenWidth() - 25) {
             aliens_direction = -1;
             MoveDownAliens(4);
         }
-        if (alien.position.x <= 0) {
+        if (alien.position.x <= 25) {
             aliens_direction = 1;
             MoveDownAliens(4);
         }
@@ -177,6 +181,13 @@ void Game::CheckForCollisions()
         auto it = aliens.begin();
         while (it != aliens.end()) {
             if (CheckCollisionRecs(it -> GetRect(), laser.GetRect())) {
+                if (it -> type == 1)
+                    score += 100;
+                else if (it -> type == 2)
+                    score += 200;
+                else if (it -> type == 3)
+                    score += 300;
+
                 it = aliens.erase(it);
                 laser.active = false;
             }
@@ -198,14 +209,19 @@ void Game::CheckForCollisions()
         if (CheckCollisionRecs(mothership.GetRect(), laser.GetRect())) {
             mothership.alive = false;
             laser.active = false;
+            score += 500;
         }
     }
     
     // Alien lasers
 
     for (Laser& laser: alien_lasers) {
-        if (CheckCollisionRecs(laser.GetRect(), spaceship.GetRect()))
+        if (CheckCollisionRecs(laser.GetRect(), spaceship.GetRect())) {
             laser.active = false;
+            lives--;
+            if (lives == 0)
+                GameOver();
+        }
 
         for (Obstacle& obstacle: obstacles) {
             auto it = obstacle.blocks.begin();
@@ -232,8 +248,34 @@ void Game::CheckForCollisions()
         }
 
         if (CheckCollisionRecs(alien.GetRect(), spaceship.GetRect()))
-            ;
+            GameOver();
     }
 
 }
 
+ 
+void Game::GameOver() 
+{
+    run = false;
+}
+ 
+void Game::Reset() 
+{
+    spaceship.Reset();
+    aliens.clear();
+    alien_lasers.clear();
+    obstacles.clear();
+}
+ 
+void Game::InitGame()  
+{
+    obstacles = CreateObstacles();
+    aliens = CreateAliens();
+    aliens_direction = 1;
+    last_time_alien_fired = 0.f;
+    mothership_spawn_interval = GetRandomValue(10, 20);
+    lives = 3;
+    score = 0;
+    run = true;
+    time_last_spawn = 0.f;
+}
