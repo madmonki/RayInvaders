@@ -16,6 +16,8 @@ public:
     bool run;
     int lives;
     int score;
+    int highscore;
+    Music music;
 private:
     void DeleteInactiveLasers();
     std::vector<Obstacle> CreateObstacles();
@@ -27,6 +29,9 @@ private:
     void GameOver();
     void Reset();
     void InitGame();
+    void CheckForHighScore();
+    void SaveHighscoreToFile(int highscore);
+    int LoadHighscoreFromFile();
     Spaceship spaceship;
     MotherShip mothership;
     std::vector<Obstacle> obstacles;
@@ -37,6 +42,7 @@ private:
     float last_time_alien_fired;
     float mothership_spawn_interval;
     float time_last_spawn;
+    Sound explosion_sound;
 };
 
 

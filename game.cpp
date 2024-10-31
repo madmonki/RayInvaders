@@ -1,14 +1,23 @@
 #include "game.hpp"
 #include <raylib.h>
+#include <fstream>
+#include <iostream>
+
+using namespace std;
 
 Game::Game()
 {
+    music = LoadMusicStream("Sounds/music.ogg");
+    explosion_sound = LoadSound("Sounds/explosion.ogg");
+    PlayMusicStream(music);
     InitGame();
 }
 
 Game::~Game()
 {
     Alien::UnloadImages();
+    UnloadMusicStream(music);
+    UnloadSound(explosion_sound);
 }
 
 void Game::Update()
@@ -38,6 +47,9 @@ void Game::Update()
         mothership.Update();
 
         CheckForCollisions();
+
+        if (aliens.empty())
+            GameOver();
     }    
     else 
         if (IsKeyDown(KEY_ENTER)) {
@@ -181,12 +193,15 @@ void Game::CheckForCollisions()
         auto it = aliens.begin();
         while (it != aliens.end()) {
             if (CheckCollisionRecs(it -> GetRect(), laser.GetRect())) {
+                PlaySound(explosion_sound);
                 if (it -> type == 1)
                     score += 100;
                 else if (it -> type == 2)
                     score += 200;
                 else if (it -> type == 3)
                     score += 300;
+
+                CheckForHighScore();
 
                 it = aliens.erase(it);
                 laser.active = false;
@@ -210,6 +225,8 @@ void Game::CheckForCollisions()
             mothership.alive = false;
             laser.active = false;
             score += 500;
+            CheckForHighScore();
+            PlaySound(explosion_sound);
         }
     }
     
@@ -276,6 +293,42 @@ void Game::InitGame()
     mothership_spawn_interval = GetRandomValue(10, 20);
     lives = 3;
     score = 0;
+    highscore = LoadHighscoreFromFile();
     run = true;
     time_last_spawn = 0.f;
 }
+ 
+void Game::CheckForHighScore()
+{
+    if (score > highscore) {
+        highscore = score;
+        SaveHighscoreToFile(highscore);
+    }
+}
+ 
+void Game::SaveHighscoreToFile(int highscore)  
+{
+    ofstream highscorefile("highscore.txt"); 
+    if (highscorefile.is_open()) {
+        highscorefile << highscore;
+        highscorefile.close();
+    }
+    else
+        cerr << "Failed to save highscore to file!" << endl;
+}
+
+int Game::LoadHighscoreFromFile()
+{
+    int loadedhighscore = 0;
+    ifstream highscorefile("highscore.txt");
+    if (highscorefile.is_open()) {
+        highscorefile >> loadedhighscore;
+        highscorefile.close();
+    }
+    else
+        cerr << "Failed to load highscore from file." << endl;
+
+    return loadedhighscore;
+}
+
+

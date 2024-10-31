@@ -17,6 +17,7 @@ public:
     Rectangle GetRect();
     std::vector<Laser> lasers;
 private:
+    Sound laser_sound;
     Texture2D image;
     Vector2 position;
     float speed;

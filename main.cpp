@@ -20,6 +20,7 @@ int main()
     Color yellow{243, 216, 63, 255};
     
     InitWindow(windowWidth + offset, windowHeight + 2 * offset, "RayInvaders");
+    InitAudioDevice();
 
     Font font = LoadFontEx("Font/monogram.tff", 64, 0, 0);
     Texture2D spaceship_image = LoadTexture("Graphics/spaceship.png");
@@ -29,7 +30,7 @@ int main()
     Game game;
 
     while (WindowShouldClose() == false) {
-
+        UpdateMusicStream(game.music);
         game.HandleMovement();
         game.HandleFire();
         game.Update();
@@ -39,7 +40,7 @@ int main()
         DrawLineEx({25, 730}, {775, 730}, 3, yellow);
 
         if (game.run) {
-            DrawTextEx(font, "LEVEL 01", {570, 740}, 34, 2, yellow);
+            DrawTextEx(font, "<- Left -> Right Space Shoot", {280, 740}, 34, 2, yellow);
         }
         else {
             DrawTextEx(font, "GAME OVER", {570, 740}, 34, 2, yellow);
@@ -51,9 +52,13 @@ int main()
             x += 50.f;
         }
         
-        DrawTextEx(font, "SCORE", {50, 15}, 32, 2, yellow);
+        DrawTextEx(font, "SCORE", {60, 20}, 32, 2, yellow);
         string score_text = FormatWithLeadingZeros(game.score, 5);
-        DrawTextEx(font, score_text.c_str(), {50, 40}, 34, 2, yellow);
+        DrawTextEx(font, score_text.c_str(), {60, 55}, 34, 2, yellow);
+        
+        DrawTextEx(font, "HIGH-SCORE", {540, 20}, 34, 2, yellow);
+        string highscoretext = FormatWithLeadingZeros(game.highscore, 5);
+        DrawTextEx(font, highscoretext.c_str(), {655, 55}, 34, 2, yellow);
         
         game.Draw();
 
@@ -61,6 +66,7 @@ int main()
     }
     
     CloseWindow();
+    CloseAudioDevice();
 
     return 0;
 }
