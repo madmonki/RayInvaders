@@ -1,7 +1,32 @@
 #include "alien.hpp"
+#include "alien1_texture.h"
+#include "alien2_texture.h"
+#include "alien3_texture.h"
 #include <raylib.h>
 
 Texture2D Alien::alien_images[3] = {};
+
+Image alien1 {
+        .data = ALIEN1_TEXTURE_DATA,
+        .width = ALIEN1_TEXTURE_WIDTH,
+        .height = ALIEN1_TEXTURE_HEIGHT,
+        .mipmaps = 1,
+        .format = ALIEN1_TEXTURE_FORMAT
+    };
+Image alien2 {
+        .data = ALIEN2_TEXTURE_DATA,
+        .width = ALIEN2_TEXTURE_WIDTH,
+        .height = ALIEN2_TEXTURE_HEIGHT,
+        .mipmaps = 1,
+        .format = ALIEN2_TEXTURE_FORMAT
+    };
+Image alien3 {
+        .data = ALIEN3_TEXTURE_DATA,
+        .width = ALIEN3_TEXTURE_WIDTH,
+        .height = ALIEN3_TEXTURE_HEIGHT,
+        .mipmaps = 1,
+        .format = ALIEN3_TEXTURE_FORMAT
+    };
 
 Alien::Alien(int type, Vector2 position)  
 {
@@ -12,16 +37,16 @@ Alien::Alien(int type, Vector2 position)
 
         switch(type) {
             case 1:
-                alien_images[0] = LoadTexture("Graphics/alien_1.png");
+                alien_images[0] = LoadTextureFromImage(alien1);
                 break;
             case 2:
-                alien_images[1] = LoadTexture("Graphics/alien_2.png");
+                alien_images[1] = LoadTextureFromImage(alien2);
                 break;
             case 3:
-                alien_images[2] = LoadTexture("Graphics/alien_3.png");
+                alien_images[2] = LoadTextureFromImage(alien3);
                 break;
             default:
-                alien_images[0] = LoadTexture("Graphics/alien_1.png");
+                alien_images[0] = LoadTextureFromImage(alien1);
                 break;
         }
 }

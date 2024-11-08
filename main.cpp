@@ -23,7 +23,7 @@ int main()
     InitAudioDevice();
 
     Font font = LoadFontEx("Font/monogram.tff", 64, 0, 0);
-    Texture2D spaceship_image = LoadTexture("Graphics/spaceship.png");
+    Texture2D spaceship_image = LoadTextureFromImage(Spaceship::GetSpaceShipImage());
 
     SetTargetFPS(60);
 
@@ -36,7 +36,7 @@ int main()
         game.Update();
         BeginDrawing();
         ClearBackground(grey);
-        DrawRectangleRoundedLines({10, 10, 780, 780}, 0.18f, 20, 2, yellow);
+        DrawRectangleRoundedLinesEx({10, 10, 780, 780}, 0.18f, 20, 2, yellow);
         DrawLineEx({25, 730}, {775, 730}, 3, yellow);
 
         if (game.run) {

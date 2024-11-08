@@ -2,14 +2,25 @@
 #include <raylib.h>
 #include <fstream>
 #include <iostream>
+#include "explosionsound.h"
 
 using namespace std;
 
+Wave explosionh {
+    .frameCount = EXPLOSIONSOUND_FRAME_COUNT,
+    .sampleRate = EXPLOSIONSOUND_SAMPLE_RATE,
+    .sampleSize = EXPLOSIONSOUND_SAMPLE_SIZE,
+    .channels = EXPLOSIONSOUND_CHANNELS,
+    .data = EXPLOSIONSOUND_DATA,
+};
+
 Game::Game()
 {
-    music = LoadMusicStream("Sounds/music.ogg");
-    explosion_sound = LoadSound("Sounds/explosion.ogg");
+    music = LoadMusicStream(".music.ogg");
+    explosion_sound = LoadSoundFromWave(explosionh);
+    SetSoundVolume(explosion_sound, 0.1f);
     PlayMusicStream(music);
+    SetMusicVolume(music, 0.1f);
     InitGame();
 }
 

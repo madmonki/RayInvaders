@@ -1,12 +1,31 @@
 #include "spaceship.hpp"
+#include "spaceship_texture.h"
 #include <raylib.h>
+#include "lasersound.h"
+
+Image spaceship_image_memory {
+    .data = SPACESHIP_TEXTURE_DATA,
+    .width = SPACESHIP_TEXTURE_WIDTH,
+    .height = SPACESHIP_TEXTURE_HEIGHT,
+    .mipmaps = 1,
+    .format = SPACESHIP_TEXTURE_FORMAT
+};
+
+Wave laserh {
+    .frameCount = LASERSOUND_FRAME_COUNT,
+    .sampleRate = LASERSOUND_SAMPLE_RATE,
+    .sampleSize = LASERSOUND_SAMPLE_SIZE,
+    .channels = LASERSOUND_CHANNELS,
+    .data = LASERSOUND_DATA,
+};
 
 Spaceship::Spaceship()
 {
     last_fire_time = 0.f;
     speed = 6.f;
-    image = LoadTexture("Graphics/spaceship.png");
-    laser_sound = LoadSound("Sounds/laser.ogg");
+    image = LoadTextureFromImage(spaceship_image_memory);
+    laser_sound = LoadSoundFromWave(laserh);
+    SetSoundVolume(laser_sound, 0.1f);
     position.x = (GetScreenWidth() - image.width) / 2.f;
     position.y = GetScreenHeight() - image.height - 100;
 }
@@ -57,4 +76,9 @@ void Spaceship::Reset()
     position.x = (GetScreenWidth() - image.width) / 2.f;
     position.y = GetScreenHeight() - image.height - 100;
     lasers.clear();
+}
+ 
+Image Spaceship::GetSpaceShipImage()
+{
+	return spaceship_image_memory;
 }

@@ -1,9 +1,18 @@
 #include "mothership.hpp"
+#include "mothership_texture.h"
 #include <raylib.h>
  
+Image mothership_memory {
+    .data = MOTHERSHIP_TEXTURE_DATA,
+    .width = MOTHERSHIP_TEXTURE_WIDTH,
+    .height = MOTHERSHIP_TEXTURE_HEIGHT,
+    .mipmaps = 1,
+    .format = MOTHERSHIP_TEXTURE_FORMAT
+};
+
 MotherShip::MotherShip() 
 {
-    image = LoadTexture("Graphics/mystery.png"); 
+    image = LoadTextureFromImage(mothership_memory); 
     alive = false;
 }
  

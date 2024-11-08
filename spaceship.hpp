@@ -16,6 +16,7 @@ public:
     void Reset();
     Rectangle GetRect();
     std::vector<Laser> lasers;
+    static Image GetSpaceShipImage();
 private:
     Sound laser_sound;
     Texture2D image;
